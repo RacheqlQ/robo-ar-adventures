@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: robo-learns-to-see-ar
+    runtime: static
+    staticPublishPath: .
+    headers:
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(self), gyroscope=(self), accelerometer=(self), microphone=()
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
