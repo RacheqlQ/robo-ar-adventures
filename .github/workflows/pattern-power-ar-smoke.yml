@@ -48,7 +48,7 @@ jobs:
               "seven target indices are created": "for(let index=1;index<7;index++)" in source,
               "anchors are initialized before MindAR reconfiguration": "ensureMultiTargetAnchors();scene.removeAttribute('mindar-image')" in source,
               "pattern bug updates all target scenes": "const beads=$$" in source and "bugBead" in source and "beads.forEach" in source,
-              "labels update across target scenes": "$$('[id=" in source and "arLabel" in source and "labels.forEach" in source,
+              "labels update across target scenes": "$$('[id^=" in source and "arLabel" in source and "labels.forEach" in source,
               "no escaped newline remains before getArSystem": chr(92) + "nasync function getArSystem" not in source,
           }
           for name, passed in checks.items():
