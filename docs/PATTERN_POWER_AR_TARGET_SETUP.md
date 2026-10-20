@@ -14,14 +14,14 @@ The source image files currently in the repository include:
 - `printed_page_8_natures_patterns.png`
 - `printed_page_12_your_turn_and_cheers.png`
 
-The companion app currently declares `mindar-image-target="targetIndex: 0"`. Therefore it is only explicitly anchored to target index 0; it must not be described as supporting every page in the compiled file yet. Do not assume index 0 is printed page 5—the compiler's target order must be verified.
+The companion app now creates target anchors for indices `0` through `6` when AR starts, matching the seven target PNGs listed above. Each anchor displays the same Robo and Pattern Bug scene, and the Pattern Bug controls update all seven anchored scenes. This avoids depending on the compiler's image ordering for basic recognition. This implementation assumes `targets.mind` contains those seven images in a single compilation; if the file contains a different number of targets, update the anchor count accordingly.
 
 ## Safe verification path
 
 1. Work only on `feat/book4-mindar-six-games`; do not merge or deploy to production during this work.
 2. Verify the source image order used when compiling `targets.mind`. If that order was not recorded, do not guess which printed page corresponds to target index 0.
-3. Update the app to support the intended target indices and ensure the Pattern Bug controls update the AR content for the active target.
-4. Test with the compiled `.mind` file on the actual printed page images, checking target-found/target-lost status, camera start/stop, and the “Fix the pattern bug” interaction.
+3. The feature branch now creates target anchors for indices 0–6 and synchronizes the Pattern Bug interaction across them. Verify this behavior in a browser before considering the work complete.
+4. Test with the compiled `.mind` file on each of the seven actual printed page images, checking target-found/target-lost status, camera start/stop, and the “Fix the pattern bug” interaction. The repository edit is not a substitute for this real-device test.
 5. Test on iPhone Safari; test Android Chrome if available. Check browser console/runtime errors and the responsive layout.
 6. Only consider production deployment after the checks pass. No successful tracking test is claimed by this document.
 
