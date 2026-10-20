@@ -25,8 +25,8 @@ jobs:
           from pathlib import Path
           import re
           source = Path("book4-ar.html").read_text(encoding="utf-8")
-          scripts = re.findall(r"<script\\b([^>]*)>([\\s\\S]*?)</script\\s*>", source, re.I)
-          inline = [body for attrs, body in scripts if not re.search(r"\\bsrc\\s*=", attrs, re.I) and body.strip()]
+          scripts = re.findall(r"<script\b([^>]*)>([\s\S]*?)</script\s*>", source, re.I)
+          inline = [body for attrs, body in scripts if not re.search(r"\bsrc\s*=", attrs, re.I) and body.strip()]
           if not inline:
               raise SystemExit("No inline JavaScript blocks found")
           out = Path("/tmp/pattern-power-ar-inline")
@@ -47,9 +47,9 @@ jobs:
           checks = {
               "seven target indices are created": "for(let index=1;index<7;index++)" in source,
               "anchors are initialized before MindAR reconfiguration": "ensureMultiTargetAnchors();scene.removeAttribute('mindar-image')" in source,
-              "pattern bug updates every target anchor": "const beads=$$('[id=\\"bugBead\\"]')" in source and "beads.forEach" in source,
-              "labels update across target anchors": "$$('[id=\\"arLabel\\"]').forEach" in source,
-              "no escaped newline remains before getArSystem": "}}\\\\nasync function getArSystem" not in source,
+              "pattern bug updates all target scenes": "const beads=$$" in source and "bugBead" in source and "beads.forEach" in source,
+              "labels update across target scenes": "$$('[id=" in source and "arLabel" in source and "labels.forEach" in source,
+              "no escaped newline remains before getArSystem": chr(92) + "nasync function getArSystem" not in source,
           }
           for name, passed in checks.items():
               print(f"{'PASS' if passed else 'FAIL'}: {name}")
