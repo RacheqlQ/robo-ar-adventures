@@ -1,0 +1,58 @@
+name: Pattern Power AR smoke checks
+
+on:
+  push:
+    branches:
+      - feat/book4-mindar-six-games
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "book4-ar.html"
+      - "docs/PATTERN_POWER_AR_TARGET_SETUP.md"
+      - ".github/workflows/pattern-power-ar-smoke.yml"
+
+jobs:
+  static-ar-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out feature branch
+        uses: actions/checkout@v4
+      - name: Check inline JavaScript syntax
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          source = Path("book4-ar.html").read_text(encoding="utf-8")
+          scripts = re.findall(r"<script\b([^>]*)>([\s\S]*?)</script\s*>", source, re.I)
+          inline = [body for attrs, body in scripts if not re.search(r"\bsrc\s*=", attrs, re.I) and body.strip()]
+          if not inline:
+              raise SystemExit("No inline JavaScript blocks found")
+          out = Path("/tmp/pattern-power-ar-inline")
+          out.mkdir(exist_ok=True)
+          for index, body in enumerate(inline, 1):
+              (out / f"inline-{index}.js").write_text(body, encoding="utf-8")
+          print(f"Extracted {len(inline)} inline JavaScript block(s)")
+          PY
+          for file in /tmp/pattern-power-ar-inline/*.js; do
+            echo "Checking $file"
+            node --check "$file"
+          done
+      - name: Check multi-target implementation invariants
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          source = Path("book4-ar.html").read_text(encoding="utf-8")
+          checks = {
+              "seven target indices are created": "for(let index=1;index<7;index++)" in source,
+              "anchors are initialized before MindAR reconfiguration": "ensureMultiTargetAnchors();scene.removeAttribute('mindar-image')" in source,
+              "pattern bug updates all target scenes": "const beads=$$" in source and "bugBead" in source and "beads.forEach" in source,
+              "labels update across target scenes": "$$('[id^=" in source and "arLabel" in source and "labels.forEach" in source,
+              "no escaped newline remains before getArSystem": chr(92) + "nasync function getArSystem" not in source,
+          }
+          for name, passed in checks.items():
+              print(f"{'PASS' if passed else 'FAIL'}: {name}")
+          if not all(checks.values()):
+              raise SystemExit(1)
+          PY
